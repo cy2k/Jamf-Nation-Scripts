@@ -61,6 +61,9 @@
 #
 #	A list of supported time zone entries can be found by running the command:
 #
+#
+#		Latest testing on Ventura 13.4.1, so I'm updating the script to allow it to run on 13.x using the 10.5 or later script below:
+#
 #		For Mac OS X 10.5 or later:
 #
 #			/usr/sbin/systemsetup -listtimezones
@@ -68,6 +71,7 @@
 #		For Mac OS X 10.4 or earlier:
 #
 #			/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Support/systemsetup -listtimezones
+#
 #
 #	The system time zone will be set according to the value specified in the paramter $timeZone.
 #	It can be used with a hardcoded value in the script, or read in as a parameter.  Since the
@@ -123,7 +127,7 @@ osx=$(/usr/bin/defaults read /System/Library/CoreServices/SystemVersion ProductV
 maj=$(/usr/bin/defaults read /System/Library/CoreServices/SystemVersion ProductVersion | awk '{print substr($1,1,2)}')
 ref=$(/usr/bin/defaults read /System/Library/CoreServices/SystemVersion ProductVersion | awk '{print substr($1,4,2)}')
 
-if [ $maj -gt 10 ]
+if [ $maj -gt 13 ]
 then
 	echo
 	echo "Check OS string format & OS X systemsetup utility for script compatibility with OS X version $osx"
@@ -133,22 +137,12 @@ fi
 
 if [ "$timeZone" != "" ]
 then
-	if [ $ref -lt 5 ]
-	then
-		echo
-		echo "Setting time zone for OS X $osx..."
-		/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Support/systemsetup -settimezone "$timeZone"
-		/usr/bin/killall SystemUIServer
-		echo "Refreshing the clock in the Menu Bar..."
-		echo
-	else
-		echo
-		echo "Setting time zone for OS X $osx..."
-		/usr/sbin/systemsetup -settimezone "$timeZone"
-		/usr/bin/killall SystemUIServer
-		echo "Refreshing the clock in the Menu Bar..."
-		echo
-	fi
+	echo
+	echo "Setting time zone for OS X $osx..."
+	/usr/sbin/systemsetup -settimezone "$timeZone"
+	# /usr/bin/killall SystemUIServer  #doesn't seem to be needed in Ventura, the clock immediately updated in my testing
+	echo "Refreshing the clock in the Menu Bar..."
+	echo
 else
 	echo
 	echo "Error: The timeZone variable is not populated. Press the return key "
